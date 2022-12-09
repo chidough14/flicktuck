@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React, { Dispatch, SetStateAction } from 'react'
 import { GoVerified } from "react-icons/go"
 import useAthStore from '../store/authStore'
+import { IUser } from '../types'
 import NoResults from './NoResults'
 
 interface IProps {
@@ -24,14 +25,50 @@ interface IComment {
 }
 
 const Comments = ({isPostingComment, comment, setComment, addComment, comments}: IProps) => {
-  const { userProfile } = useAthStore()
+  const { userProfile, allUsers } = useAthStore()
 
   return (
     <div className='border-t-2 border-gray-200 pt-4 px-10 mt-4 bg-[#F8F8F8] border-b-2 lg:pb-0 pb-[100px]'>
       <div className='overflow-scroll lg:h-[457px]'>
         {
           comments?.length ? (
-            <div>Videos</div>
+            comments.map((item, idx) => (
+              <>
+                {
+                  allUsers.map((user: IUser) => (
+                    user._id === (item.postedBy._id || item.postedBy._ref) && (
+                      <div className='p-2 items-center' key={idx}>
+                        <Link href={`/profile/${user._id}`}>
+                          <div className='flex items-start gap-3'>
+                            <div className='w-12 h-12'>
+                              <Image
+                                width={48}
+                                height={48}
+                                className='rounded-full cursor-pointer'
+                                src={user.image}
+                                alt='user-profile'
+                                layout='responsive'
+                              />
+                            </div>
+
+                            <p className='flex cursor-pointer gap-1 items-center text-[18px] font-bold leading-6 text-primary'>
+                              {user.userName}{' '}
+                              <GoVerified className='text-blue-400' />
+                            </p>
+                          </div>
+                        </Link>
+
+                        <div>
+                          <p className='-mt-5 ml-16 text-[16px] mr-8'>
+                            {item.comment}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  ))
+                }
+              </>
+            ))
           ) : (
             <NoResults text='No comments yet!' />
           )
