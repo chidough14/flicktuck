@@ -6,6 +6,9 @@ import Image from 'next/image'
 import { HiVolumeUp, HiVolumeOff } from "react-icons/hi"
 import { BsFillPlayFill, BsFillPauseFill, BsPlay } from "react-icons/bs"
 import { GoVerified } from "react-icons/go"
+import axios from 'axios'
+import { BASE_URL } from '../utils'
+import useAthStore from '../store/authStore'
 
 interface IProps {
   post: Video
@@ -14,17 +17,31 @@ interface IProps {
 const VideoCard: NextPage<IProps> = ({ post }) => {
   const [isHover, setIsHover] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [pausedForViewCount, setPausedForViewCount] = useState(false)
   const [isVideoMuted, setIsVideoMuted] = useState(false)
+  const { userProfile }: any = useAthStore()
 
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const countViews = async () => {
+    const { data } = await axios.put(`${BASE_URL}/api/views`, {
+      userId: userProfile._id,
+      postId: post._id
+    })
+  }
 
   const onVideoPress = () => {
     if (playing) {
       videoRef?.current?.pause()
       setPlaying(false)
+      setPausedForViewCount(true)
     } else {
       videoRef?.current?.play()
       setPlaying(true)
+
+      if(!pausedForViewCount) {
+        countViews()
+      }
     }
   }
 
@@ -39,7 +56,7 @@ const VideoCard: NextPage<IProps> = ({ post }) => {
       <div>
         <div className='flex gap-3 p-2 cursor-pointer font-semibold rounded'>
           <div className='md:w-16 md:h-16 w-10 h-10'>
-            <Link href="/">
+            <Link href={`/profile/${post.postedBy._id}`}>
               <>
                 <Image
                   width={62}
@@ -54,7 +71,7 @@ const VideoCard: NextPage<IProps> = ({ post }) => {
           </div>
 
           <div>
-            <Link href="/">
+            <Link href={`/profile/${post.postedBy._id}`}>
               <div className='flex items-center gap-2'>
                 <p className='flex items-center gap-2 md:text-md font-bold text-primary'>{ post.postedBy.userName }{` `}</p>
                 <GoVerified className='text-blue-400 text-md' />
@@ -105,6 +122,10 @@ const VideoCard: NextPage<IProps> = ({ post }) => {
                       <HiVolumeUp className='text-black text-2xl lg:text-4xl' />
                     </button>
                   )
+                }
+
+                {
+                  `${post.views?.length} views`
                 }
               </div>
             )

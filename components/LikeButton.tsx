@@ -15,7 +15,7 @@ const LikeButton = ({handleLike, handleDislike, likes}: IProps) => {
   const filterLikes = likes?.filter((like) => like._ref === userProfile?._id)
 
   useEffect(() => {
-    if (filterLikes.length > 0) {
+    if (filterLikes?.length > 0) {
       setAlreadyLiked(true)
     } else {
       setAlreadyLiked(false)

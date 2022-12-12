@@ -27,6 +27,7 @@ export interface Video {
       _id: string
     };
   }[];
+  views: any;
   userId: string;
 }
 
